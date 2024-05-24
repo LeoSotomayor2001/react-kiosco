@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useQuiosco from "../hooks/useQuiosco";
 import { formatearDinero } from "../helpers";
 
 export const ModalProducto = () => {
-  const { producto, handleClickModal } = useQuiosco();
+  const { producto, handleClickModal, handleAgregarPedido,pedido } = useQuiosco()
+  const [edicion, setEdicion] = useState(false)
   const [cantidad, setCantidad] = useState(1);
+  useEffect(() => {
+    if(pedido.some(productoState => productoState.id === producto.id)){
+        const pedidoEdicion=pedido.filter(productoState => productoState.id == producto.id)[0]
+        setCantidad(pedidoEdicion.cantidad)
+        setEdicion(true)
+    }
+    
+  },[pedido])
   return (
     <div className="md:flex gap-10">
       <div className="md:w-1/3">
@@ -37,11 +46,14 @@ export const ModalProducto = () => {
           {formatearDinero(producto?.precio)}
         </p>
         <div className="flex gap-4 mt-5">
-          <button type="button" onClick={() => {
-            if(cantidad > 1){
-              setCantidad(cantidad - 1)
-            }
-          }}>
+          <button
+            type="button"
+            onClick={() => {
+              if (cantidad > 1) {
+                setCantidad(cantidad - 1);
+              }
+            }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -58,11 +70,14 @@ export const ModalProducto = () => {
             </svg>
           </button>
           <p className="text-3xl font-bold">{cantidad}</p>
-          <button type="button" onClick={() => {
-            if(cantidad < 5){
-              setCantidad(cantidad + 1)
-            }
-          }}>
+          <button
+            type="button"
+            onClick={() => {
+              if (cantidad < 5) {
+                setCantidad(cantidad + 1);
+              }
+            }}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -79,8 +94,14 @@ export const ModalProducto = () => {
             </svg>
           </button>
         </div>
-        <button className="bg-sky-600 hover:bg-sky-800 text-white mt-5 p-3 uppercase font-bold">
-          Agregar al pedido
+        <button 
+            className="bg-sky-600 hover:bg-sky-800 text-white mt-5 p-3 uppercase font-bold"
+            onClick={() => {
+                handleAgregarPedido({...producto, cantidad})
+                handleClickModal()
+            }}
+        >
+          {edicion ? 'Guardar Cambios' : 'Añadir al pedido'}
         </button>
       </div>
     </div>
