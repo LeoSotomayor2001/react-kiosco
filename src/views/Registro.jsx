@@ -1,12 +1,36 @@
 import { Link } from "react-router-dom";
-
+import { useState,createRef } from "react";
+import axiosClient from "../config/axios";
+import Alerta from "../components/Alerta";
 export const Registro = () => {
+  const emailRef = createRef();
+  const passwordRef = createRef();
+  const passwordConfirmationRef = createRef();
+  const nameRef = createRef();
+  const [error, setError] = useState([]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const datos= {
+      email: emailRef.current.value,
+      password: passwordRef.current.value,
+      password_confirmation: passwordConfirmationRef.current.value,
+      name: nameRef.current.value,
+    }
+    try {
+        const {data}= await axiosClient.post('/api/registro',datos)
+        console.log(data.token)
+    } catch (error) {
+        setError(Object.values(error.response.data.errors))
+    }
+  };
   return (
     <>
       <h1 className="text-3xl font-black">Crea tu cuenta</h1>
       <p className="mt-1">Ingresa los datos para crear tu cuenta</p>
       <div className="bg-white shadow-md rounded-lg mt-10 px-5 py-10">
-        <form noValidate>
+        <form noValidate onSubmit={handleSubmit}>
+          {error ? error.map((error,i) => <Alerta key={i}>{error}</Alerta>) : null}
           <div className="mb-5">
             <label
               htmlFor="name"
@@ -20,6 +44,7 @@ export const Registro = () => {
               className="w-full p-3 border border-gray-200 mt-2 bg-gray-200"
               placeholder="Nombre"
               name="name"
+              ref={nameRef}
             />
           </div>
 
@@ -36,6 +61,7 @@ export const Registro = () => {
               className="w-full p-3 border border-gray-200 mt-2 bg-gray-200"
               placeholder="Tu email"
               name="email"
+              ref={emailRef}
             />
           </div>
 
@@ -52,6 +78,7 @@ export const Registro = () => {
               className="w-full p-3 border border-gray-200 mt-2 bg-gray-200"
               placeholder="Tu Password"
               name="password"
+              ref={passwordRef}
             />
           </div>
 
@@ -68,6 +95,7 @@ export const Registro = () => {
               className="w-full p-3 border border-gray-200 mt-2 bg-gray-200"
               placeholder="Repite tu Password"
               name="password_confirmation"
+              ref={passwordConfirmationRef}
             />
           </div>
           <input
