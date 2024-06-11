@@ -1,75 +1,84 @@
 import { Link } from "react-router-dom";
 import { useState,createRef } from "react";
-import axiosClient from "../config/axios";
 import Alerta from "../components/Alerta";
+import { useAuth } from "../hooks/useAuth";
 export const Login = () => {
   const emailRef = createRef();
   const passwordRef = createRef();
-  const [error, setError] = useState([]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const datos= {
-      email: emailRef.current.value,
-      password: passwordRef.current.value,
-    }
-    try {
-        const {data}= await axiosClient.post('/api/login',datos)
-        console.log(data.token)
-    } catch (error) {
-        setError(Object.values(error.response.data.errors))
-    }
-  };
+  const [errores, setErrores] = useState([])
+  const { login } = useAuth({
+      middleware: 'guest',
+      url: '/'
+  })
+
+  const handleSubmit = async e => {
+      e.preventDefault();
+
+      const datos = {
+          email: emailRef.current.value,
+          password: passwordRef.current.value,
+      }
+     
+      login(datos, setErrores)
+  }
   return (
     <>
-      <h1 className='text-3xl font-black'>Iniciar Sesión</h1>
-      <p className='mt-1'>Para crear un pedido debes iniciar sesion</p>
-      <div className="bg-white shadow-md rounded-lg mt-10 px-5 py-10">
-          <form noValidate onSubmit={handleSubmit}>
-          {error ? error.map((error,i) => <Alerta key={i}>{error}</Alerta>) : null}
-            <div className="mb-5">
-              <label htmlFor="email" className="block text-gray-700 uppercase font-bold">
-                Email
-              </label>
-              <input 
-                type="email" 
-                id="email"
-                className="w-full p-3 border border-gray-200 mt-2 bg-gray-200" 
-                placeholder="Tu email" 
-                name="email"
-                ref={emailRef}
-              />
-            </div>
+        <h1 className="text-4xl font-black">Iniciar Sesión</h1>
+        <p>Para crear un pedido debes iniciar sesión</p>
 
-            <div className="mb-5">
-              <label htmlFor="password" className="block text-gray-700 uppercase font-bold">
-                Password
-              </label>
-              <input 
-                type="password" 
-                id="password"
-                className="w-full p-3 border border-gray-200 mt-2 bg-gray-200" 
-                placeholder="Tu Password" 
-                name="password"
-                ref={passwordRef}
-              />
-            </div>
-            <input 
-              type="submit" 
-              value="Iniciar Sesion"
-              className="bg-sky-600 w-full p-3 rounded text-white uppercase font-bold cursor-pointer hover:bg-sky-700"  
-            />
-          </form>
-      </div>
-      <nav className="mt-5">
-        <Link 
-          to="/auth/register" 
-          className="block text-center my-5 text-gray-500"
-        >
-          ¿No tienes cuenta? Registrate
-        </Link>
-      </nav>
+        <div className="bg-white shadow-md rounded-md mt-10 px-5 py-10">
+            <form
+                onSubmit={handleSubmit}
+                noValidate
+            >
+
+                {errores ? errores.map((error, i) => <Alerta key={i}>{error}</Alerta>)  : null }
+
+                <div className="mb-4">
+                    <label
+                        className="text-slate-800"
+                        htmlFor="email"
+                    >Email:</label>
+                    <input 
+                        type="email" 
+                        id="email"
+                        className="mt-2 w-full p-3 bg-gray-50"
+                        name="email"
+                        placeholder="Tu Email"
+                        ref={emailRef}
+                    />
+                </div>
+
+                <div className="mb-4">
+                    <label
+                        className="text-slate-800"
+                        htmlFor="password"
+                    >Password:</label>
+                    <input 
+                        type="password" 
+                        id="password"
+                        className="mt-2 w-full p-3 bg-gray-50"
+                        name="password"
+                        placeholder="Tu Password"
+                        ref={passwordRef}
+                    />
+                </div>
+
     
+                <input
+                    type="submit"
+                    value="Iniciar Sesión"
+                    className="bg-indigo-600 hover:bg-indigo-800 text-white w-full mt-5 p-3 uppercase font-bold cursor-pointer"
+                />
+            </form>
+        </div>
+
+        <nav className="mt-5">
+            <Link to="/auth/register">
+                ¿No tienes cuenta? Crea una
+            </Link>
+        </nav>
     </>
-  )
+)
 }
