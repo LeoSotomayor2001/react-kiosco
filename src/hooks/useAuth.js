@@ -1,35 +1,55 @@
-import axiosClient from "../config/axios"
-import useSWR from "swr"
-export const useAuth= ({middleware,url}) =>{
+import { useEffect } from "react";
+import axiosClient from "../config/axios";
+import useSWR from "swr";
+import { useNavigate } from "react-router-dom";
 
-    const token=localStorage.getItem('AUTH_TOKEN');
-    
-    const { data: user, error,mutate } = useSWR('/api/user', () =>
-        axiosClient('/api/user', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        })
-        .then(res => res.data)
-        .catch(error => {
-            throw Error(error?.response?.data?.errors)
-        })
-    )
-
-    const login=async(datos,setErrores)=>{
+export const useAuth = ({ middleware, url }) => {
+    const token = localStorage.getItem('AUTH_TOKEN');
+    const navigate = useNavigate();
+    const fetcher = async (url) => {
         try {
-            const {data}=await axiosClient.post('/api/login',datos);
-            localStorage.setItem('AUTH_TOKEN',data.token)
-            setErrores([])
-            await mutate()
+            const response = await axiosClient(url, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response.data;
         } catch (error) {
-              setErrores(Object.values( error.response.data.errors));
+            throw new Error(error?.response?.data?.errors || 'Error fetching data');
         }
-    }
-    const registro= ()=> {}
-    const logout= ()=> {}
+    };
 
-    console.log(user)
-    console.log(error)
-    return {login,registro,logout}
-}
+    const { data: user, error, mutate } = useSWR('/api/user', fetcher);
+
+    const login = async (datos, setErrores) => {
+        try {
+            const { data } = await axiosClient.post('/api/login', datos);
+            localStorage.setItem('AUTH_TOKEN', data.token);
+            setErrores([]);
+            await mutate();
+        } catch (error) {
+            setErrores(error?.response?.data?.errors ? Object.values(error.response.data.errors) : ['Error logging in']);
+        }
+    };
+
+    const registro = async (datos, setErrores) => {
+       
+    };
+
+    const logout = async () => {
+       
+    };
+    
+    useEffect(() => {
+        if(middleware === 'guest' && url && user) {
+            navigate(url);
+        }
+
+        if(middleware === 'auth' && error) {
+            navigate('/auth/login');
+        }
+
+    },[user,error])
+
+    return { login, registro, logout, user, error };
+};

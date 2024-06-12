@@ -21,14 +21,19 @@ const QuiscoProvider = ({ children }) => {
   }, [pedido])
 
   const obtenerCategorias=async()=>{
+    const token =localStorage.getItem('AUTH_TOKEN');
     try {
-      const {data} = await axiosClient('/api/categorias')
-      setCategorias(data.data)
-      setCategoriaActual(data.data[0])
+        const {data}=await axiosClient('/api/categorias',{
+            headers:{
+                Authorization: `Bearer ${token}`
+            }
+        })
+        setCategorias(data.data)
+        setCategoriaActual(data.data[0])
     } catch (error) {
-      console.log(error)
+        console.log(error);
     }
-  }
+}
   useEffect(() => {
     obtenerCategorias()
   },[])
