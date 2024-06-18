@@ -72,6 +72,27 @@ const QuiscoProvider = ({ children }) => {
     setPedido(pedidoActualizado)
     toast.success('Eliminado correctamente')
   }
+  const handleSubmitNuevaOrden=async(e)=>{
+    const token = localStorage.getItem('AUTH_TOKEN');
+    try {
+      const {data}=await axiosClient.post('/api/pedidos', {
+        total,
+        productos:pedido.map((producto)=>({id:producto.id,cantidad:producto.cantidad}))
+      },{
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      })
+      toast.success(data.message)
+      setTimeout(()=>{
+        setModal(false)
+        setPedido([])
+        setTotal(0)
+      },1000)
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <QuiscoContext.Provider
       value={{
@@ -86,7 +107,8 @@ const QuiscoProvider = ({ children }) => {
         handleAgregarPedido,
         handleEditarCantidad,
         handleEliminarProductoPedido,
-        total
+        total,
+        handleSubmitNuevaOrden
 
       }}
     >

@@ -23,7 +23,7 @@ export default function Inicio() {
   if (isLoading) {
     return <p>Cargando...</p>
   }
-  const productos=data.data.filter(producto => producto.categoria_id===categoriaActual.id);
+  const productos=data?.data.filter(producto => producto.categoria_id===categoriaActual.id);
   
   return (
 

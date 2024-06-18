@@ -32,12 +32,30 @@ export const useAuth = ({ middleware, url }) => {
         }
     };
 
-    const registro = async (datos, setErrores) => {
-       
+    const registro = async (datos, setError) => {
+        try {
+            const {data}= await axiosClient.post('/api/registro',datos)
+            localStorage.setItem('AUTH_TOKEN', data.token);
+            setError([]);
+            await mutate();
+        } catch (error) {
+            setError(Object.values(error.response.data.errors))
+        }
     };
 
     const logout = async () => {
-       
+       try {
+            await axiosClient.post('/api/logout',{},{
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            localStorage.removeItem('AUTH_TOKEN');
+            await mutate(undefined);
+       } catch (error) {
+            throw new Error(error?.response?.data?.errors || 'Error fetching data');
+       }
     };
     
     useEffect(() => {
@@ -48,6 +66,7 @@ export const useAuth = ({ middleware, url }) => {
         if(middleware === 'auth' && error) {
             navigate('/auth/login');
         }
+
 
     },[user,error])
 
