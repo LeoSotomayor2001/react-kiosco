@@ -1,6 +1,7 @@
 import useSWR from "swr";
 import axiosClient from "../config/axios";
 import { formatearDinero } from "../helpers";
+import useQuiosco from "../hooks/useQuiosco";
 export const Ordenes = () => {
   const token = localStorage.getItem("AUTH_TOKEN");
   const fetcher = () => axiosClient('api/pedidos',{
@@ -11,6 +12,7 @@ export const Ordenes = () => {
   const { data, error, isLoading } = useSWR('/api/pedidos', fetcher,{
     refreshInterval:1000
   })
+  const {handleClickCompletarPedido}= useQuiosco()
   if (isLoading) {
     return <p>Cargando...</p>
   }
@@ -53,6 +55,7 @@ export const Ordenes = () => {
             <button
               type="button"
               className='bg-indigo-600 hover:bg-indigo-800 text-white w-full p-3 uppercase font-bold'
+              onClick={() => handleClickCompletarPedido(pedido.id)}
             >
               Completar
             </button>

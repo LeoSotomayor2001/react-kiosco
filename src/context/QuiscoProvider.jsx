@@ -93,6 +93,30 @@ const QuiscoProvider = ({ children }) => {
       console.log(error);
     }
   }
+  const handleClickCompletarPedido=async id => {
+      const token= localStorage.getItem('AUTH_TOKEN');
+      try {
+        await axiosClient.put(`/api/pedidos/${id}`,null, {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+      } catch (error) {
+        console.log(error);
+      }
+  }
+  const handleClickProductoAgotado= async(id)=>{
+      const token= localStorage.getItem('AUTH_TOKEN');
+      try {
+        await axiosClient.put(`/api/productos/${id}`,null, {
+          headers:{
+            Authorization: `Bearer ${token}`
+          }
+        })
+      } catch (error) {
+        console.log(error);
+      }
+  }
   return (
     <QuiscoContext.Provider
       value={{
@@ -108,7 +132,9 @@ const QuiscoProvider = ({ children }) => {
         handleEditarCantidad,
         handleEliminarProductoPedido,
         total,
-        handleSubmitNuevaOrden
+        handleSubmitNuevaOrden,
+        handleClickCompletarPedido,
+        handleClickProductoAgotado
 
       }}
     >
